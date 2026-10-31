@@ -11,20 +11,23 @@ upstream  git@github.com:FujiwaraChoki/supoclip.git (fetch & push)  -> Repositó
 
 ---
 
-## Fluxo do Dia a Dia
+## Fluxo de Sincronização em 2 Etapas
 
-Siga os 3 passos abaixo para manter seu código sempre atualizado sem gerar conflitos na `main`:
+Quando quiser sincronizar com as novidades e hotfixes do criador original:
+
+### Etapa 1: Atualizar a `main`
+Você vai para a `main` apenas para receber o código limpo do autor original e espelhar no seu GitHub:
 
 ```bash
-# 1. No dia a dia, você trabalha e roda o projeto na branch custom:
-git checkout custom
-
-# 2. Quando quiser atualizar com novidades do criador original:
 git checkout main
 git merge upstream/main
 git push origin main
+```
 
-# 3. Incorpora as novidades na sua branch de ajustes:
+### Etapa 2: Selecionar a `custom` e incorporar as novidades
+Agora sim você seleciona a sua branch `custom` e puxa as novidades da `main` para dentro dela:
+
+```bash
 git checkout custom
 git merge main
 git push origin custom
@@ -32,7 +35,15 @@ git push origin custom
 
 ---
 
-## Dicas Adicionais
+> [!TIP]
+> **Você nem precisa decorar os comandos:**  
+> Sempre que quiser atualizar no futuro, basta abrir o chat com o agente de IA e dizer:  
+> *"Sincronize com o projeto original"* ou *"Puxe as novidades do upstream"*.  
+> O agente executará o protocolo com segurança, validará se há conflitos e deixará você pronto na branch `custom`.
 
-- **Nunca faça commits pessoais na branch `main`:** Deixe a `main` sempre idêntica à do `upstream`. Assim, o comando `git merge upstream/main` será sempre um *fast-forward* limpo e automático.
-- **Resolução de Conflitos:** Se houver conflito no passo 3 (`git merge main`), resolva mantendo suas customizações e finalize com `git commit`.
+---
+
+## Por que fazemos nessa ordem?
+
+- **A branch `main` se mantém limpa:** Ela atua como um espelho idêntico do repositório oficial (`FujiwaraChoki/supoclip`), garantindo que o comando `git merge upstream/main` seja sempre um *fast-forward* instantâneo e livre de conflitos.
+- **Suas customizações ficam protegidas:** A branch `custom` recebe as melhorias e correções da `main` mantendo intactos seus ajustes, regras de IA e arquivos de configuração.

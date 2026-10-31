@@ -96,3 +96,11 @@ git checkout custom
 git merge main
 git push origin custom
 ```
+
+### Automated Assistant Trigger
+Whenever the user asks:
+- *"Sincronize com o projeto original"*
+- *"Puxe as novidades do upstream"*
+- *"Atualizar fork"*
+
+Invoke the `sync-upstream` skill (`.agents/skills/sync-upstream/SKILL.md`) to execute the protocol safely, validate integrity, resolve any merge conflicts protecting user customizations, and leave the repository on branch `custom`.

@@ -1,45 +1,37 @@
 ---
 name: sync-upstream
-description: "Sync the repository and user fork (origin: vmellos/supoclip) with latest features, hotfixes, and commits from upstream (FujiwaraChoki/supoclip)."
+description: "Sync the repository and user fork (origin: vmellos/supoclip) with latest features and hotfixes from upstream (FujiwaraChoki/supoclip). Trigger whenever user says 'Sincronize com o projeto original', 'Puxe as novidades do upstream', 'atualizar fork', or similar."
 ---
 
 # Sync Upstream
 
-Sync the local repository and the user fork with updates from the original repository (`FujiwaraChoki/supoclip`), preserving all user customizations.
+Synchronize the local repository and the user fork with updates from the original repository (`FujiwaraChoki/supoclip`), preserving all user customizations.
+
+## Trigger Phrases
+Activate this skill whenever the user asks:
+- *"Sincronize com o projeto original"*
+- *"Puxe as novidades do upstream"*
+- *"Atualizar fork"*
+- *"Sync upstream"*
+
+---
 
 ## Remotes Configuration
 
-Ensure remotes match the fork configuration:
-- `origin`: `git@github.com:vmellos/supoclip.git` (write destination)
-- `upstream`: `git@github.com:FujiwaraChoki/supoclip.git` (read-only upstream)
+- `origin`: `git@github.com:vmellos/supoclip.git` (write destination - user fork)
+- `upstream`: `git@github.com:FujiwaraChoki/supoclip.git` (read-only upstream - original repository)
 
-Verify with `git remote -v`. If missing, configure with:
-```bash
-git remote add upstream git@github.com:FujiwaraChoki/supoclip.git
-```
+Verify with `git remote -v`.
 
-## Standard Daily Workflow
+---
 
-```bash
-# 1. No dia a dia, você trabalha e roda o projeto na branch custom:
-git checkout custom
+## Protocol & Execution Workflow
 
-# 2. Quando quiser atualizar com novidades do criador original:
-git checkout main
-git merge upstream/main
-git push origin main
-
-# 3. Incorpora as novidades na sua branch de ajustes:
-git checkout custom
-git merge main
-git push origin custom
-```
-
-## Detailed Sync Procedure
+Follow this 2-stage execution protocol to keep `main` clean and `custom` updated:
 
 ### 1. Pre-flight Check
 1. Run `git status` to verify the working tree is clean.
-2. If there are uncommitted changes, ask the user or stash them (`git stash`) before proceeding.
+2. If there are uncommitted changes, stash them with `git stash` before proceeding.
 
 ### 2. Fetch Upstream Changes
 ```bash
@@ -47,40 +39,36 @@ git fetch upstream
 ```
 
 ### 3. Review Incoming Updates
-Compare current branch or `main` against `upstream/main`:
+Compare `main` against `upstream/main`:
 ```bash
-git log HEAD..upstream/main --oneline
+git log main..upstream/main --oneline
 ```
-Identify which areas were modified (e.g. backend, frontend, dependencies).
+If there are no incoming commits, inform the user that the repository is already 100% up to date.
 
-### 4. Integrate Updates
-- **If updating `main`**:
-  ```bash
-  git checkout main
-  git merge upstream/main
-  ```
-- **If updating a custom branch (`custom`, `feat/*`)**:
-  ```bash
-  git checkout <custom-branch>
-  git merge upstream/main
-  ```
+### 4. Etapa 1: Atualizar a `main`
+Checkout `main`, merge upstream changes cleanly, and push to origin:
+```bash
+git checkout main
+git merge upstream/main
+git push origin main
+```
+*Note: `main` must remain a 1:1 mirror of `upstream/main`. Never commit customizations directly to `main`.*
 
-### 5. Conflict Resolution
-If git reports conflicts:
+### 5. Etapa 2: Selecionar a `custom` e incorporar as novidades
+Checkout the user's custom branch (`custom`), merge the updated `main`, and push to origin:
+```bash
+git checkout custom
+git merge main
+git push origin custom
+```
+
+### 6. Conflict Resolution (if applicable)
+If git reports conflicts when merging into `custom`:
 1. Identify conflicting files with `git status`.
-2. Inspect conflicting blocks. Always preserve local customizations and adaptations made by the user.
-3. Test resolved files to ensure syntax and build integrity (`make check`).
-4. Complete merge: `git commit -m "chore: sync with upstream/main and resolve conflicts"`.
+2. Inspect conflicting blocks. Always protect and preserve user customizations, personal configurations, and custom rules.
+3. Test resolved files (`git diff`).
+4. Finalize the merge: `git commit -m "chore: sync with upstream/main and preserve custom adjustments"`.
+5. Push to origin: `git push origin custom`.
 
-### 6. Verification
-Run sanity checks to confirm the codebase remains healthy:
-```bash
-make check
-```
-
-### 7. Push to User Fork
-Push updated branches strictly to `origin`:
-```bash
-git push origin <branch-name>
-```
-*(Never attempt to push to `upstream`)*
+### 7. Completion
+Ensure the repository is left on branch **`custom`** so the user can immediately resume working. Report a concise summary of the incoming commits integrated.
