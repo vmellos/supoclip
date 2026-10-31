@@ -55,3 +55,44 @@ PRs should include:
 - Preserve the committed dependency lockfiles and patched base-image versions when deploying. Run the `Image security` checks against freshly built final images; do not bypass a failing critical-vulnerability check with a server-only tag or an unpinned package install.
 - Before a production restart, check that no SupoClip tasks are queued or processing and the worker has no ongoing jobs; let active clips finish first.
 - Required runtime keys include `ASSEMBLY_AI_API_KEY` and either one hosted LLM provider key (`OPENAI_API_KEY`, `GOOGLE_API_KEY`, `ANTHROPIC_API_KEY`, or `OPENROUTER_API_KEY`) or an Ollama model configuration (`LLM=ollama:*`, optional `OLLAMA_BASE_URL`).
+
+## Fork & Upstream Sync Guidelines
+This repository is a customized fork maintained by `vmellos` based on `FujiwaraChoki/supoclip`.
+Coding agents assisting with repository operations, updates, or maintenance must follow these rules:
+
+### Remotes Convention
+- `origin`: `git@github.com:vmellos/supoclip.git` (user's fork repository; all `git push` commands MUST target `origin`).
+- `upstream`: `git@github.com:FujiwaraChoki/supoclip.git` (official repository; read-only source for features and hotfixes).
+
+### Upstream Sync Protocol
+When asked to sync, pull updates, or integrate hotfixes from upstream:
+1. **Working Tree Safety**: Run `git status` to verify there are no dirty uncommitted files before initiating any sync.
+2. **Fetch Upstream**: Run `git fetch upstream` to get the latest commits and tags.
+3. **Inspect Incoming Changes**: Run `git log HEAD..upstream/main --oneline` to review what commits are incoming and check for touched files.
+4. **Syncing `main`**:
+   - Checkout `main`: `git checkout main`.
+   - Merge upstream changes: `git merge upstream/main`.
+   - Validate integrity: Run `make check` (frontend lint/TS) and backend tests where applicable.
+   - Push to personal fork: `git push origin main`.
+5. **Syncing Custom/Feature Branches**:
+   - If user adjustments live on a custom branch (e.g., `custom` or `feat/*`), switch to that branch: `git checkout <branch>`.
+   - Integrate updates: `git merge main` (or `git merge upstream/main`).
+   - If conflicts arise: protect user customizations, preserve custom logic/features, resolve conflict markers, and verify before committing.
+   - Push to fork: `git push origin <branch>`.
+6. **Guardrail**: Never attempt to push to `upstream`. All changes belong in `origin`.
+
+### Standard Daily Workflow
+```bash
+# 1. No dia a dia, você trabalha e roda o projeto na branch custom:
+git checkout custom
+
+# 2. Quando quiser atualizar com novidades do criador original:
+git checkout main
+git merge upstream/main
+git push origin main
+
+# 3. Incorpora as novidades na sua branch de ajustes:
+git checkout custom
+git merge main
+git push origin custom
+```
